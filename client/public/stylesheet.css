@@ -1,0 +1,41 @@
+body {
+  height: 100vh;
+  margin: auto;
+  background: radial-gradient(ellipse at center, #fafafa 0%, #fafafa 60%, rgba(0,0,0,0.2) 100%);
+}
+
+main {
+  padding: 5%;
+}
+
+header {
+  font-size: 28px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 10px;
+  padding: 10px;
+}
+
+.text {
+  border-bottom: 1px solid grey;
+  border-bottom-left-radius: 10%;
+  border-bottom-right-radius: 10%;
+}
+
+.text-meta {
+  display: flex;
+  justify-content: space-between;
+}
+
+.text-to, .text-date {
+  width: 50%;
+}
+
+.text-date {
+  text-align: right;
+}
+
+.text-body {
+  text-align: center;
+  font-style: italic;
+}
