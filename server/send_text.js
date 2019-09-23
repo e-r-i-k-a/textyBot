@@ -1,31 +1,19 @@
+const axios = require('axios');
+const event = require('events');
+const emitter = new event.EventEmitter();
 const {ACCT, AUTH} = require('../secrets.js');
 const twilio = require('twilio')(ACCT, AUTH);
-const axios = require('axios');
+const connection = process.env.INSTANCE_CONNECTION_NAME;
+const host = connection ? `/cloudsql/${connection}` : 'http://localhost:9001';
 const {formatPhoneNumber, formatDate} = require('../utility.js');
 
-const sendText = ({to, from, body, date}) => {
-  const jobDate = formatDate(date);
-
-  //first send the text
-  twilio.messages
-  .create({to, from, body})
-  .then(({dateCreated, to, body}) => {
-    console.log('we sent this text: ', {
-      dateSent: formatDate(dateCreated),
-      recipient: formatPhoneNumber(to),
-      body,
-      jobDate,
-    })
-
-    //then update the API
-    const root = process.env.DATABASE_URL || 'http://localhost:9001';
-    const url = `${root}/api`;
-    return axios.post(url, {
-      jobDate: date,
-      dateCreated,
-      to,
-      body
-    })
+emitter.on('textSent', (date, dateCreated, to, body) => {
+  const url = `${host}/api`;
+  return axios.post(url, {
+    jobDate: date,
+    dateCreated,
+    to,
+    body
   })
   .then(({data: {dateCreated, to, body, jobDate}}) => {
     console.log('we created this db record: ', {
@@ -34,6 +22,22 @@ const sendText = ({to, from, body, date}) => {
       body,
       jobDate,
     })
+  })
+})
+
+const sendText = ({to, from, body, date, mediaUrl}) => {
+  const jobDate = formatDate(date);
+
+  twilio.messages
+  .create({to, from, body, mediaUrl})
+  .then(({dateCreated, to, body}) => {
+    console.log('we sent this text: ', {
+      dateSent: formatDate(dateCreated),
+      recipient: formatPhoneNumber(to),
+      body,
+      jobDate,
+    })
+    emitter.emit('textSent', date, dateCreated, to, body)
   })
   .catch(err => console.error(err))
 }
