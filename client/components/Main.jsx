@@ -1,5 +1,7 @@
 import React, {Component} from 'react';
 import axios from 'axios';
+const connection = process.env.INSTANCE_CONNECTION_NAME;
+const host = connection ? `/cloudsql/${connection}` : 'http://localhost:9001';
 const {getDate, getTime, formatPhoneNumber} = require('../../utility');
 
 export default class Main extends Component {
@@ -12,14 +14,12 @@ export default class Main extends Component {
   };
 
   componentDidMount() {
-    const url = process.env.DATABASE_URL || 'http://localhost:9001';
-
-    axios.get(`${url}/api`)
+    axios.get(`${host}/api`)
     .then(res => res.data)
     .then(textHistory => {
       return this.setState({
         didFetch: true,
-        textHistory,
+        textHistory: textHistory.reverse(),
       });
     })
     .catch(err => console.error(err))
@@ -32,7 +32,7 @@ export default class Main extends Component {
   renderAlert() {
     const {didFetch, textHistory} = this.state;
 
-    if (!didFetch) return <span>Loading...</span>;
+    if (!didFetch) return <p className='text-body'>Loading...</p>;
     else if (didFetch && textHistory.length === 0) {
       return <p className='text-body'>You haven't sent any texts!</p>
     }
@@ -41,16 +41,16 @@ export default class Main extends Component {
   renderTexts() {
     const {textHistory} = this.state;
 
-    const texts = textHistory.map(({id, to, body, createdDate}) => {
+    const texts = textHistory.map(({id, to, body, jobDate}) => {
       return <article key={id} className='text'>
 
         <span className='text-meta'>
           <span className='text-to'>
-            <p>&#x1F4F1;  {formatPhoneNumber(to)}</p>
+            <p>&#x1F4F1; {formatPhoneNumber(to)}</p>
           </span>
           <span className='text-date'>
-            <p>{getDate(createdDate)}  &#x1F4C6;</p>
-            <p>{getTime(createdDate)}  &#x231A;</p>
+            <p>{getDate(jobDate)}  &#x1F4C6;</p>
+            <p>{getTime(jobDate)}  &#x231A;</p>
           </span>
         </span>
 
