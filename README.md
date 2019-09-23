@@ -23,4 +23,4 @@ module.exports = {
 * mediaUrl (optional): url string in an array (e.g.: [‘https://media.giphy.com/...’])
 [7] `npm start`
 [8] scheduled jobs will log in console
-[9] completed jobs will log to frontend at `localhost:9001`
+[9] completed jobs will log to frontend at `localhost:9001`  
